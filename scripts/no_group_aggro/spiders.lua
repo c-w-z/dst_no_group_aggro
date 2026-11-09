@@ -37,7 +37,7 @@ end
 -- 原版調查者在走到 investigate 位置時清除記憶（ACTIONS.INVESTIGATE），戰鬥中不會走過去；
 -- brain 中 Investigate 優先於白天回巢，所以調查期間不回巢。
 -- untargeted 警報不給位置，改以步行到原位置的時間模擬：期間計入調查者並借用 summoned 阻止 brain 回巢；
--- 有戰鬥目標時延後，丟失目標後重新計時。
+-- 有戰鬥目標時延後，丟失目標後重新計時；出巢的 taunt/落下等 busy 狀態期間原版不能移動，不計入步行。
 local CheckAlarmSpider
 
 local function StartAlarmTravel(inst)
@@ -50,11 +50,30 @@ local function StartAlarmTravel(inst)
     inst._no_group_aggro_alarm_task = inst:DoTaskInTime(speed > 0 and dist / speed or 0, CheckAlarmSpider)
 end
 
+local function OnAlarmNewState(inst)
+    if not inst.sg:HasStateTag("busy") then
+        inst:RemoveEventCallback("newstate", OnAlarmNewState)
+        StartAlarmTravel(inst)
+    end
+end
+
+-- 延後一幀：dropperweb 在 SpawnChild 回傳後才進入 dropper_enter。
+local function BeginAlarmTravel(inst)
+    inst._no_group_aggro_alarm_task = nil
+    if inst.sg ~= nil and inst.sg:HasStateTag("busy") then
+        inst:RemoveEventCallback("newstate", OnAlarmNewState)
+        inst:ListenForEvent("newstate", OnAlarmNewState)
+    else
+        StartAlarmTravel(inst)
+    end
+end
+
 CheckAlarmSpider = function(inst)
     inst._no_group_aggro_alarm_task = nil
     if inst.components.combat:HasTarget() then return end
     inst._no_group_aggro_alarm = nil
     inst:RemoveEventCallback("droppedtarget", StartAlarmTravel)
+    inst:RemoveEventCallback("newstate", OnAlarmNewState)
     -- 只還原自己設定的 summoned；吹哨 buff 仍在時由 buff 的 detachfn 負責。
     if inst._no_group_aggro_summoned then
         inst._no_group_aggro_summoned = nil
@@ -71,7 +90,8 @@ local function MarkAlarmSpider(inst, x, z)
         end
     end
     inst._no_group_aggro_alarm = { x = x, z = z }
-    StartAlarmTravel(inst)
+    if inst._no_group_aggro_alarm_task ~= nil then inst._no_group_aggro_alarm_task:Cancel() end
+    inst._no_group_aggro_alarm_task = inst:DoTaskInTime(0, BeginAlarmTravel)
 end
 
 local function SpiderPostInit(inst)
@@ -111,6 +131,11 @@ local function SpiderPostInit(inst)
                 local context = spider_context
                 if target ~= nil and context ~= nil and context.children[inst]
                     and (context.mode == "untargeted" or context.queen ~= nil) then
+                    -- dropperweb 警報直接指派目標而非調查位置；以目標位置模擬同樣的延後回巢。
+                    if context.kind == "alarm" and target.Transform ~= nil then
+                        local x, _, z = target.Transform:GetWorldPosition()
+                        MarkAlarmSpider(inst, x, z)
+                    end
                     return
                 end
                 return old_target(self, target, ...)
