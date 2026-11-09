@@ -76,29 +76,29 @@ local LANGS = {
             { modid .. '_rocky', 'Rock Lobsters', 'Excludes Enthralled Rock Lobsters', true, onof_en },
             { modid .. '_monkey', 'Splumonkey', '', true, onof_en },
             { "Bee Related" },
-            { modid .. '_bee', 'Bees', 'Controls aggro sharing from regular and Killer Bees, excluding Grumble Bees; hives and boxes are configured independently', true, onof_en },
-            { modid .. '_beehive', 'Bee Hives', 'Only regular wild hives, excluding Killer Bee Hives; also controls releases when their bees are attacked or netted', true, {
-                { 'Vanilla', false, "Preserve vanilla releases: attacking a hive releases aggressive Killer Bees" },
-                { 'Untargeted Bees', true, "Release regular bees without an aggro target; outdoor aggro sharing is controlled by Bees" },
+            { modid .. '_bee', 'Bees', 'Regular and Killer Bees, excluding Grumble Bees; hives and boxes are separate', true, onof_en },
+            { modid .. '_beehive', 'Bee Hives', 'Wild hives only, not Killer Bee Hives; includes attacks or netting of outside bees', true, {
+                { 'Vanilla', false, "Release aggressive Killer Bees" },
+                { 'Untargeted Bees', true, "Release regular bees without aggro" },
             } },
-            { modid .. '_beebox', 'Bee Boxes', 'Includes Hermit Bee Boxes; safe mode prevents harvest releases and releases untargeted regular bees in other cases', true, {
-                { 'Vanilla', false, "Preserve vanilla harvesting and bee releases" },
-                { 'Safe Bee Boxes', true, "No bees released on harvest; other releases have no aggro target; outdoor aggro sharing is controlled by Bees" },
+            { modid .. '_beebox', 'Bee Boxes', 'Includes Hermit Bee Boxes', true, {
+                { 'Vanilla', false, "Harvesting angers bees" },
+                { 'Safe Bee Boxes', true, "No bees on harvest; released bees have no aggro" },
             } },
             { "Spider Related" },
-            { modid .. '_spider', 'Spider Assistance', 'All eight variants; disables wild spider hit assistance, preserves player spiders; queen minions follow the Queen setting', true, onof_en },
-            { modid .. '_spider_nest_help', 'Spider Calls to Nests', 'Stops attacked spiders calling nearby nests; preserves calls from player spiders and parasite hosts; nest releases follow Nest Defense', true, onof_en },
-            { modid .. '_spider_nest_defense', 'Spider Nest Defense', 'Regular dens, Spilagmites, Shattered Spider Holes and Oceanvine Cocoons: attacks, mining, shaving, haunting and ignition; preserves vanilla untargeted escapes on destruction', "untargeted", {
-                { 'Vanilla', "vanilla", "Preserve defensive releases and target assignments" },
-                { 'Untargeted Releases', "untargeted", "Preserve defensive numbers and types without combat targets or investigation positions; spiders can still acquire targets themselves" },
-                { 'No Defensive Releases', "disabled", "No defensive spawning or stock consumption; preserve routine releases, whistle summons and destruction escapes" },
+            { modid .. '_spider', 'Spider Assistance', 'All eight spiders; wild spiders only, player spiders unchanged; queen minions follow Queen setting', true, onof_en },
+            { modid .. '_spider_nest_help', 'Spider Calls to Nests', 'Hit spiders stop calling nearby nests; player and parasite spiders unchanged; releases follow Nest Defense', true, onof_en },
+            { modid .. '_spider_nest_defense', 'Spider Nest Defense', 'All dens and cocoons: attack, mining, shaving, haunting, ignition; vanilla escapes on destruction kept', "untargeted", {
+                { 'Vanilla', "vanilla", "Vanilla releases and targets" },
+                { 'Untargeted Releases', "untargeted", "Same releases, no target or investigate spot; spiders may still aggro" },
+                { 'No Defensive Releases', "disabled", "No spawn, no stock used; routine, whistle and escapes kept" },
             } },
-            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Nest web triggers, chopping Webbed Mushtrees and Oceanvine Cocoon activation alarms; independent of Nest Defense', "untargeted", {
-                { 'Vanilla', "vanilla", "Preserve alarm spawning and target or investigation assignments" },
-                { 'Untargeted Releases', "untargeted", "Preserve alarm spawning without targets or investigation positions; retain investigator limits; spiders can still acquire targets themselves" },
-                { 'No Alarm Releases', "disabled", "No alarm spawning; defense, routine releases, whistle summons and fishing remain independent" },
+            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Den webs, Webbed Mushtree chopping, Oceanvine Cocoon alarms; separate from defense', "untargeted", {
+                { 'Vanilla', "vanilla", "Vanilla releases with targets or investigate spots" },
+                { 'Untargeted Releases', "untargeted", "Same releases and investigator cap, no target or spot; spiders may still aggro" },
+                { 'No Alarm Releases', "disabled", "No alarm spawns; defense, routine, whistle and fishing unaffected" },
             } },
-            { modid .. '_spiderqueen', 'Spider Queens', 'Stops queen assistance, leader target assignments, newborn target inheritance and minion assistance; preserves births, following and individual combat', true, onof_en },
+            { modid .. '_spiderqueen', 'Spider Queens', 'No queen assistance, minion target orders, newborn targets or minion assistance; births, following and solo combat kept', true, onof_en },
         }
     }
 }
