@@ -14,7 +14,7 @@ local onof_en = {
     { 'No Group Aggro',  true },
 }
 
--- TODO: 新增一個移除對所有生物群體仇恨還是只移除對玩家和玩家隨從的群體仇恨的選項
+-- TODO: 新增一个移除对所有生物群体仇恨还是只移除对玩家和玩家随从的群体仇恨的选项
 
 local LANGS = {
     ['zh'] = {
@@ -33,29 +33,29 @@ local LANGS = {
             { modid .. '_lightninggoat', '充电伏特羊', '', true, onof_zh },
             { modid .. '_rocky', '石虾', '不含面具石虾', true, onof_zh },
             { modid .. '_monkey', '穴居猴', '', true, onof_zh },
-            { "蜜蜂相關" },
-            { modid .. '_bee', '蜜蜂', '控制普通蜜蜂和杀人蜂的仇恨传播，不含嗡嗡蜜蜂；蜂巢和蜂箱独立设置', true, onof_zh },
-            { modid .. '_beehive', '蜂巢', '普通野生蜂巢的放蜂反应，也包含巢外蜜蜂被攻击或捕捉；不影响杀人蜂巢', true, {
+            { "蜜蜂相关" },
+            { modid .. '_bee', '蜜蜂', '蜜蜂被打时不会叫同伴一起上；含杀人蜂，不含嗡嗡蜜蜂；蜂巢、蜂箱另外设置', true, onof_zh },
+            { modid .. '_beehive', '蜂巢', '野生蜂巢被打，或巢外蜜蜂被打、被捕时放蜂的反应；不影响杀人蜂巢', true, {
                 { '原版', false, "放出有仇恨的杀人蜂" },
                 { '无仇恨蜜蜂', true, "放出无仇恨的普通蜜蜂" },
             } },
             { modid .. '_beebox', '蜂箱', '包含隐士蜂箱', true, {
-                { '原版', false, "採蜜激怒蜜蜂" },
+                { '原版', false, "采蜜激怒蜜蜂" },
                 { '安全蜂箱', true, "采蜜不放蜂，放蜂不仇恨" },
             } },
-            { "蜘蛛相關" },
-            { modid .. '_spider', '蜘蛛互相援助', '包含八种蜘蛛；只移除野生蜘蛛的受击援助，玩家蜘蛛保留原版，女王子蛛由女王设置控制', true, onof_zh },
-            { modid .. '_spider_nest_help', '蜘蛛呼叫蛛巢', '移除受击蜘蛛呼叫附近蛛巢增援；保留玩家蜘蛛及面具蜘蛛的呼叫，实际放蛛由巢穴防卫设置控制', true, onof_zh },
-            { modid .. '_spider_nest_defense', '蛛巢防卫', '包含各级普通巢、岩穴、月岛巢和海黽巢繭；控制攻击、采掘、剃巢、作祟、着火的防卫，不影响毁巢后的原版无目标逸出', "untargeted", {
-                { '原版', "vanilla", "保留原版防卫放蛛和目标传递" },
-                { '无目标出蛛', "untargeted", "保留防卫出蛛数量与种类，不传入仇恨或调查位置；蜘蛛仍可自行索敌" },
-                { '停止防卫出蛛', "disabled", "防卫反应不生成蜘蛛、不扣巢内库存；正常出巢、吹哨与毁巢逸出保留" },
+            { "蜘蛛相关" },
+            { modid .. '_spider', '蜘蛛互相援助', '所有蜘蛛；其他蜘蛛被打时不会帮忙；女王生的蜘蛛看女王设置', true, onof_zh },
+            { modid .. '_spider_nest_help', '蜘蛛呼叫蛛巢', '蜘蛛被打时蛛巢不会出兵；不影响面具蜘蛛', true, onof_zh },
+            { modid .. '_spider_nest_defense', '蛛巢防卫', '各种蛛巢被打、挖掘、作祟、点燃时放蜘蛛的反应；打爆巢后跑出来的蜘蛛不受影响', "untargeted", {
+                { '原版', "vanilla", "不修改任何机制" },
+                { '无目标出蛛', "untargeted", "照常出蛛但不会瞬间锁定你；蜘蛛自己看到你仍会攻击" },
+                { '停止防卫出蛛', "disabled", "不出蛛，巢里蜘蛛也不减少；夜间出巢、吹哨、打爆巢时仍会出来" },
             } },
-            { modid .. '_spider_nest_alarm', '蛛网警报', '包含各类巢穴踩网、砍蜘蛛网蘑菇树，以及海黽巢繭的激活警报；与巢穴防卫独立', "vanilla", {
-                { '原版', "vanilla", "保留警报出蛛及原版目标或调查位置" },
-                { '停止警报出蛛', "disabled", "不因警报生成蜘蛛；防卫、日常出巢、吹哨及海黽捕鱼独立运作" },
+            { modid .. '_spider_nest_alarm', '蛛网警报', '踩到蛛网、砍蛛网蘑菇树、在海黾巢附近采摘时放蛛出来查看；与蛛巢防卫分开设置', "vanilla", {
+                { '原版', "vanilla", "不修改任何机制" },
+                { '停止警报出蛛', "disabled", "不因警报出蛛；蛛巢防卫、夜间出巢、吹哨及海黾捕鱼照常" },
             } },
-            { modid .. '_spiderqueen', '蜘蛛女王', '移除女王间援助、对子蛛的目标指派、新生子蛛继承目标及子蛛互相援助；保留产子、跟随与单体战斗', true, onof_zh },
+            { modid .. '_spiderqueen', '蜘蛛女王', '女王之间不互相帮忙，不指挥小蜘蛛围攻，新生小蜘蛛也不直接仇恨你；产子、跟随和各自战斗不变', true, onof_zh },
         }
     },
     ['en'] = {
@@ -75,8 +75,8 @@ local LANGS = {
             { modid .. '_rocky', 'Rock Lobsters', 'Excludes Enthralled Rock Lobsters', true, onof_en },
             { modid .. '_monkey', 'Splumonkey', '', true, onof_en },
             { "Bee Related" },
-            { modid .. '_bee', 'Bees', 'Regular and Killer Bees, excluding Grumble Bees; hives and boxes are separate', true, onof_en },
-            { modid .. '_beehive', 'Bee Hives', 'Wild hives only, not Killer Bee Hives; includes attacks or netting of outside bees', true, {
+            { modid .. '_bee', 'Bees', 'Hit bees no longer call others to join; includes Killer Bees, not Grumble Bees; hives and boxes are separate', true, onof_en },
+            { modid .. '_beehive', 'Bee Hives', 'Wild hives when hit, or when their bees are hit or caught; Killer Bee Hives unaffected', true, {
                 { 'Vanilla', false, "Release aggressive Killer Bees" },
                 { 'Untargeted Bees', true, "Release regular bees without aggro" },
             } },
@@ -85,18 +85,18 @@ local LANGS = {
                 { 'Safe Bee Boxes', true, "No bees on harvest; released bees have no aggro" },
             } },
             { "Spider Related" },
-            { modid .. '_spider', 'Spider Assistance', 'All eight spiders; wild spiders only, player spiders unchanged; queen minions follow Queen setting', true, onof_en },
-            { modid .. '_spider_nest_help', 'Spider Calls to Nests', 'Hit spiders stop calling nearby nests; player and parasite spiders unchanged; releases follow Nest Defense', true, onof_en },
-            { modid .. '_spider_nest_defense', 'Spider Nest Defense', 'All dens and cocoons: attack, mining, shaving, haunting, ignition; vanilla escapes on destruction kept', "untargeted", {
-                { 'Vanilla', "vanilla", "Vanilla releases and targets" },
-                { 'Untargeted Releases', "untargeted", "Same releases, no target or investigate spot; spiders may still aggro" },
-                { 'No Defensive Releases', "disabled", "No spawn, no stock used; routine, whistle and escapes kept" },
+            { modid .. '_spider', 'Spider Assistance', 'All spiders; other spiders no longer help when one is hit; queen-born spiders follow Queen setting', true, onof_en },
+            { modid .. '_spider_nest_help', 'Spider Calls to Nests', 'Dens no longer send help when a spider is hit; masked spiders unaffected', true, onof_en },
+            { modid .. '_spider_nest_defense', 'Spider Nest Defense', 'All dens when hit, mined, haunted or lit: whether they send out spiders; spiders escaping a destroyed den unaffected', "untargeted", {
+                { 'Vanilla', "vanilla", "Do not modify any mechanics" },
+                { 'Untargeted Releases', "untargeted", "Spiders come out as usual but don't instantly lock onto you; they still attack if they spot you" },
+                { 'No Defensive Releases', "disabled", "No spiders, den keeps them; night outings, whistles and escapes still happen" },
             } },
-            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Den webs, Webbed Mushtree chopping, Oceanvine Cocoon alarms; separate from defense', "vanilla", {
-                { 'Vanilla', "vanilla", "Vanilla releases with targets or investigate spots" },
-                { 'No Alarm Releases', "disabled", "No alarm spawns; defense, routine, whistle and fishing unaffected" },
+            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Stepping on webs, chopping Webbed Mushtrees, or picking near Oceanvine Cocoons sends spiders out to check; separate from defense', "vanilla", {
+                { 'Vanilla', "vanilla", "Do not modify any mechanics" },
+                { 'No Alarm Releases', "disabled", "No alarm spiders; defense, night outings, whistles and fishing unaffected" },
             } },
-            { modid .. '_spiderqueen', 'Spider Queens', 'No queen assistance, minion target orders, newborn targets or minion assistance; births, following and solo combat kept', true, onof_en },
+            { modid .. '_spiderqueen', 'Spider Queens', "Queens don't help each other, order babies to attack, or pass targets to newborns; births, following and own fights unchanged", true, onof_en },
         }
     }
 }
