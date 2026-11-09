@@ -51,8 +51,9 @@ local LANGS = {
                 { '无目标出蛛', "untargeted", "照常出蛛但不会瞬间锁定你；蜘蛛自己看到你仍会攻击" },
                 { '停止防卫出蛛', "disabled", "不出蛛，巢里蜘蛛也不减少；夜间出巢、吹哨、打爆巢时仍会出来" },
             } },
-            { modid .. '_spider_nest_alarm', '蛛网警报', '踩到蛛网、砍蛛网蘑菇树、在海黾巢附近采摘时放蛛出来查看；与蛛巢防卫分开设置', "vanilla", {
+            { modid .. '_spider_nest_alarm', '蛛网警报', '踩到蛛网、砍蛛网蘑菇树、在海黾巢附近采摘时放蛛出来查看；与蛛巢防卫分开设置', "untargeted", {
                 { '原版', "vanilla", "不修改任何机制" },
+                { '无目标出蛛', "untargeted", "照常出蛛但不会走向你，在巢附近停留一阵；蜘蛛自己看到你仍会攻击；悬蛛网维持原版" },
                 { '停止警报出蛛', "disabled", "不因警报出蛛；蛛巢防卫、夜间出巢、吹哨及海黾捕鱼照常" },
             } },
             { modid .. '_spiderqueen', '蜘蛛女王', '女王之间不互相帮忙，不指挥小蜘蛛围攻，新生小蜘蛛也不直接仇恨你；产子、跟随和各自战斗不变', true, onof_zh },
@@ -92,8 +93,9 @@ local LANGS = {
                 { 'Untargeted Releases', "untargeted", "Spiders come out as usual but don't instantly lock onto you; they still attack if they spot you" },
                 { 'No Defensive Releases', "disabled", "No spiders, den keeps them; night outings, whistles and escapes still happen" },
             } },
-            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Stepping on webs, chopping Webbed Mushtrees, or picking near Oceanvine Cocoons sends spiders out to check; separate from defense', "vanilla", {
+            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Stepping on webs, chopping Webbed Mushtrees, or picking near Oceanvine Cocoons sends spiders out to check; separate from defense', "untargeted", {
                 { 'Vanilla', "vanilla", "Do not modify any mechanics" },
+                { 'Untargeted Releases', "untargeted", "Spiders come out but linger near the den instead of heading to you; they still attack if they spot you; dropper webs stay vanilla" },
                 { 'No Alarm Releases', "disabled", "No alarm spiders; defense, night outings, whistles and fishing unaffected" },
             } },
             { modid .. '_spiderqueen', 'Spider Queens', "Queens don't help each other, order babies to attack, or pass targets to newborns; births, following and own fights unchanged", true, onof_en },
