@@ -46,7 +46,7 @@ local LANGS = {
             { "蜘蛛相关" },
             { modid .. '_spider', '蜘蛛互相援助', '所有蜘蛛；其他蜘蛛被打时不会帮忙；女王生的蜘蛛看女王设置', true, onof_zh },
             { modid .. '_spider_nest_help', '蜘蛛呼叫蛛巢', '蜘蛛被打时蛛巢不会出兵；不影响面具蜘蛛', true, onof_zh },
-            { modid .. '_spider_nest_defense', '蛛巢防卫', '各种蛛巢被打、挖掘、作祟、点燃时放蜘蛛的反应；打爆巢后跑出来的蜘蛛不受影响', "untargeted", {
+            { modid .. '_spider_nest_defense', '蛛巢受击防卫', '各种蛛巢被打、挖掘、作祟、点燃时放蜘蛛的反应；打爆巢后跑出来的蜘蛛不受影响', "untargeted", {
                 { '原版', "vanilla", "不修改任何机制" },
                 { '无目标出蛛', "untargeted", "照常出蛛但不会瞬间锁定你；蜘蛛自己看到你仍会攻击" },
                 { '停止防卫出蛛', "disabled", "不出蛛，巢里蜘蛛也不减少；夜间出巢、吹哨、打爆巢时仍会出来" },
@@ -88,7 +88,7 @@ local LANGS = {
             { "Spider Related" },
             { modid .. '_spider', 'Spider Assistance', 'All spiders; other spiders no longer help when one is hit; queen-born spiders follow Queen setting', true, onof_en },
             { modid .. '_spider_nest_help', 'Spider Calls to Nests', 'Dens no longer send help when a spider is hit; masked spiders unaffected', true, onof_en },
-            { modid .. '_spider_nest_defense', 'Spider Nest Defense', 'All dens when hit, mined, haunted or lit: whether they send out spiders; spiders escaping a destroyed den unaffected', "untargeted", {
+            { modid .. '_spider_nest_defense', 'Spider Nest Hit Defense', 'All dens when hit, mined, haunted or lit: whether they send out spiders; spiders escaping a destroyed den unaffected', "untargeted", {
                 { 'Vanilla', "vanilla", "Do not modify any mechanics" },
                 { 'Untargeted Releases', "untargeted", "Spiders come out as usual but don't instantly lock onto you; they still attack if they spot you" },
                 { 'No Defensive Releases', "disabled", "No spiders, den keeps them; night outings, whistles and escapes still happen" },
