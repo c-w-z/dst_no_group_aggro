@@ -34,8 +34,10 @@ local function ProtectedSpider(inst)
         or (leader ~= nil and leader:HasTag("player"))
 end
 
--- 原版調查者在走到 investigate 位置時清除記憶（ACTIONS.INVESTIGATE），戰鬥中不會走過去。
--- untargeted 警報不給位置，改以步行到原位置的時間模擬；有戰鬥目標時延後，丟失目標後重新計時。
+-- 原版調查者在走到 investigate 位置時清除記憶（ACTIONS.INVESTIGATE），戰鬥中不會走過去；
+-- brain 中 Investigate 優先於白天回巢，所以調查期間不回巢。
+-- untargeted 警報不給位置，改以步行到原位置的時間模擬：期間計入調查者並借用 summoned 阻止 brain 回巢；
+-- 有戰鬥目標時延後，丟失目標後重新計時。
 local CheckAlarmSpider
 
 local function StartAlarmTravel(inst)
@@ -53,11 +55,20 @@ CheckAlarmSpider = function(inst)
     if inst.components.combat:HasTarget() then return end
     inst._no_group_aggro_alarm = nil
     inst:RemoveEventCallback("droppedtarget", StartAlarmTravel)
+    -- 只還原自己設定的 summoned；吹哨 buff 仍在時由 buff 的 detachfn 負責。
+    if inst._no_group_aggro_summoned then
+        inst._no_group_aggro_summoned = nil
+        if not inst:HasDebuff("spider_summoned_buff") then inst.summoned = false end
+    end
 end
 
 local function MarkAlarmSpider(inst, x, z)
     if inst._no_group_aggro_alarm == nil then
         inst:ListenForEvent("droppedtarget", StartAlarmTravel)
+        if not inst.summoned then
+            inst.summoned = true
+            inst._no_group_aggro_summoned = true
+        end
     end
     inst._no_group_aggro_alarm = { x = x, z = z }
     StartAlarmTravel(inst)
