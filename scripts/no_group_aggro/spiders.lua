@@ -34,8 +34,33 @@ local function ProtectedSpider(inst)
         or (leader ~= nil and leader:HasTag("player"))
 end
 
-local function ClearAlarmSpider(inst)
+-- 原版調查者在走到 investigate 位置時清除記憶（ACTIONS.INVESTIGATE），戰鬥中不會走過去。
+-- untargeted 警報不給位置，改以步行到原位置的時間模擬；有戰鬥目標時延後，丟失目標後重新計時。
+local CheckAlarmSpider
+
+local function StartAlarmTravel(inst)
+    local pos = inst._no_group_aggro_alarm
+    if pos == nil then return end
+    if inst._no_group_aggro_alarm_task ~= nil then inst._no_group_aggro_alarm_task:Cancel() end
+    local x, _, z = inst.Transform:GetWorldPosition()
+    local dist = math.max(0, math.sqrt((pos.x - x) ^ 2 + (pos.z - z) ^ 2) - 1)
+    local speed = inst.components.locomotor ~= nil and inst.components.locomotor:GetWalkSpeed() or 0
+    inst._no_group_aggro_alarm_task = inst:DoTaskInTime(speed > 0 and dist / speed or 0, CheckAlarmSpider)
+end
+
+CheckAlarmSpider = function(inst)
+    inst._no_group_aggro_alarm_task = nil
+    if inst.components.combat:HasTarget() then return end
     inst._no_group_aggro_alarm = nil
+    inst:RemoveEventCallback("droppedtarget", StartAlarmTravel)
+end
+
+local function MarkAlarmSpider(inst, x, z)
+    if inst._no_group_aggro_alarm == nil then
+        inst:ListenForEvent("droppedtarget", StartAlarmTravel)
+    end
+    inst._no_group_aggro_alarm = { x = x, z = z }
+    StartAlarmTravel(inst)
 end
 
 local function SpiderPostInit(inst)
@@ -85,13 +110,14 @@ local function SpiderPostInit(inst)
     local locations = inst.components.knownlocations
     if locations ~= nil and nest_hooks then
         local old_remember = locations.RememberLocation
-        locations.RememberLocation = function(self, name, ...)
+        locations.RememberLocation = function(self, name, pos, ...)
             local context = spider_context
             if name == "investigate" and context ~= nil and context.mode == "untargeted"
                 and context.children[inst] then
+                if pos ~= nil and context.kind == "alarm" then MarkAlarmSpider(inst, pos.x, pos.z) end
                 return
             end
-            return old_remember(self, name, ...)
+            return old_remember(self, name, pos, ...)
         end
     end
 
@@ -100,37 +126,23 @@ local function SpiderPostInit(inst)
         inst.OnSave = function(self, data, ...)
             -- 原版 callback 可以寫入其他欄位，也可回傳實體 references。
             local function Finish(...)
-                if self._no_group_aggro_alarm and SpiderLeader(self) == nil
-                    and not ProtectedSpider(self) then
-                    data.no_group_aggro_alarm = true
-                end
+                local pos = self._no_group_aggro_alarm
+                if pos ~= nil then data.no_group_aggro_alarm = { x = pos.x, z = pos.z } end
                 return ...
             end
             if old_save ~= nil then return Finish(old_save(self, data, ...)) end
             return Finish()
         end
         inst.OnLoad = function(self, data, ...)
-            self._no_group_aggro_alarm = data ~= nil and data.no_group_aggro_alarm == true or nil
+            local pos = data ~= nil and data.no_group_aggro_alarm or nil
+            if type(pos) == "table" then MarkAlarmSpider(self, pos.x, pos.z) end
             if old_load ~= nil then return old_load(self, data, ...) end
-        end
-        inst:ListenForEvent("detachchild", ClearAlarmSpider)
-        inst:ListenForEvent("ontrapped", ClearAlarmSpider)
-        local follower = inst.components.follower
-        if follower ~= nil then
-            local old_changed = follower.OnChangedLeader
-            follower.OnChangedLeader = function(self, leader, ...)
-                if leader ~= nil then ClearAlarmSpider(self) end
-                if old_changed ~= nil then return old_changed(self, leader, ...) end
-            end
         end
     end
 
     local context = spider_context
     if context ~= nil and context.spawning then
         context.children[inst] = true
-        if context.kind == "alarm" and context.mode == "untargeted" then
-            inst._no_group_aggro_alarm = true
-        end
     end
 end
 
@@ -183,9 +195,7 @@ local function SpiderNestPostInit(inst)
             and context.kind == "alarm" and context.mode == "untargeted" and not context.spawning then
             local original = fn
             fn = function(child)
-                return original(child) or (child._no_group_aggro_alarm == true
-                    and SpiderLeader(child) == nil and not ProtectedSpider(child)
-                    and not child.components.health:IsDead())
+                return original(child) or child._no_group_aggro_alarm ~= nil
             end
         end
         return old_count(self, fn, ...)
