@@ -19,7 +19,7 @@
 [*] 青蛙、明眼青蛙
 [*] 蜘蛛：包含普通蜘蛛、蜘蛛战士、洞穴蜘蛛、喷吐蜘蛛、穴居悬蛛、破碎蜘蛛、护士蜘蛛和海黽。分别控制蜘蛛互相援助、受击呼叫附近蛛巢、巢穴防卫、蛛网警报以及女王军队，共五项配置。
 [*] 蛛巢防卫：包含各级普通巢、岩穴、月岛巢、海黽巢繭的攻击、采掘、剃巢、作祟及着火反应，以及清理海黽巢繭上的月冰雹。可选原版、无目标出蛛（默认）或停止防卫出蛛。无目标模式保留原版数量、种类和生成资格检查，不指定仇恨或调查位置；停止模式不扣巢内库存。
-[*] 蛛网警报：包含各巢踩网、砍蜘蛛网蘑菇树及海黽巢繭的激活警报，悬蛛网直接指定目标的路径也包含在内。可选原版（默认）或停止警报出蛛，与防卫配置独立；旧配置中的无目标出蛛按原版处理。
+[*] 蛛网警报：包含各巢踩网、砍蜘蛛网蘑菇树及海黽巢繭的激活警报，悬蛛网直接指定目标的路径也包含在内。可选原版（默认）或停止警报出蛛，与防卫配置独立。
 [*] 蜘蛛女王：可关闭女王间援助、首领对子蛛的目标指派、新生子蛛继承目标及同女王子蛛互相援助；保留女王目标、产子数量／种类／机率、跟随和单体战斗。
 [*] 蜘蛛互相援助、呼叫蛛巢及女王连动默认关闭。玩家通过韦伯或蜘蛛帽招募的蜘蛛固定保留原版；面具蜘蛛、装饰安抚、哨子、驱散和护士治疗保留。正常繁殖、日常出巢、吹哨、海黽捕鱼及毁巢后的原版无目标逸出也保留，停止防卫出蛛不等于完全不产蛛。
 [*] 皮弗娄牛、小皮弗娄牛
@@ -76,7 +76,7 @@ This mod removes the group aggro mechanics of creatures such as frogs, beefalos,
 [*] Frogs, Bright-Eyed Frogs
 [*] Spiders: all eight variants (Spider, Warrior, Cave Spider, Spitter, Dangling Depth Dweller, Shattered Spider, Nurse Spider and Sea Strider). Five independent settings control assistance, calls to nearby nests, nest defense, web alarms and queen armies.
 [*] Nest Defense: attacks, mining, shaving, haunting and ignition for regular den stages, Spilagmites, Shattered Spider Holes and Oceanvine Cocoons, including lunar hail buildup clearing on cocoons. Choose Vanilla, Untargeted Releases (default), or No Defensive Releases. Untargeted mode retains numbers, types and spawn eligibility without targets or investigation positions; disabled spawning does not consume nest stock.
-[*] Web Alarms: nest web triggers, chopping Webbed Mushtrees and Oceanvine Cocoon activation alarms, including direct targeting from dropper webs. Choose Vanilla (default) or No Alarm Releases, independently of defense; legacy Untargeted Releases settings behave as Vanilla.
+[*] Web Alarms: nest web triggers, chopping Webbed Mushtrees and Oceanvine Cocoon activation alarms, including direct targeting from dropper webs. Choose Vanilla (default) or No Alarm Releases, independently of defense.
 [*] Queens: disable queen-to-queen assistance, leader assignments, newborn target inheritance and assistance between a queen's minions. Preserve the queen's own target, birth numbers/types/chances, following and individual combat.
 [*] Spider assistance, nest calls and queen target sharing are disabled by default. Player spiders recruited through Webber or Spider Hats retain vanilla behavior. Parasite hosts, decorations, whistles, repellent and nurse healing are preserved, as are routine spawning, fishing and vanilla untargeted escapes on nest destruction. No Defensive Releases does not disable all spider spawning.
 [*] Beefalos, Baby Beefalos
