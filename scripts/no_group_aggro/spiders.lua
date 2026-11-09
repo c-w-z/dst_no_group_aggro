@@ -8,7 +8,7 @@ local spider_alarm = config.spider_nest_alarm
 local spider_queen = config.spiderqueen
 local spider_context = nil
 -- 只有巢穴或女王 Hook 會建立生成上下文。
-local nest_hooks = spider_defense ~= "vanilla" or spider_alarm ~= "vanilla"
+local nest_hooks = spider_defense ~= "vanilla" or spider_alarm == "disabled"
 
 -- Lua 5.1 相容：保留 nil 與多重回傳，拋錯前也恢復可巢狀的上下文並保留原始 traceback。
 local function WithSpiderContext(context, fn, ...)
@@ -32,66 +32,6 @@ local function ProtectedSpider(inst)
     local leader = SpiderLeader(inst)
     return inst:HasTag("shadowthrall_parasite_hosted")
         or (leader ~= nil and leader:HasTag("player"))
-end
-
--- 原版調查者在走到 investigate 位置時清除記憶（ACTIONS.INVESTIGATE），戰鬥中不會走過去；
--- brain 中 Investigate 優先於白天回巢，所以調查期間不回巢。
--- untargeted 警報不給位置，改以步行到原位置的時間模擬：期間計入調查者並借用 summoned 阻止 brain 回巢；
--- 有戰鬥目標時延後，丟失目標後重新計時；出巢的 taunt/落下等 busy 狀態期間原版不能移動，不計入步行。
-local CheckAlarmSpider
-
-local function StartAlarmTravel(inst)
-    local pos = inst._no_group_aggro_alarm
-    if pos == nil then return end
-    if inst._no_group_aggro_alarm_task ~= nil then inst._no_group_aggro_alarm_task:Cancel() end
-    local x, _, z = inst.Transform:GetWorldPosition()
-    local dist = math.max(0, math.sqrt((pos.x - x) ^ 2 + (pos.z - z) ^ 2) - 1)
-    local speed = inst.components.locomotor ~= nil and inst.components.locomotor:GetWalkSpeed() or 0
-    inst._no_group_aggro_alarm_task = inst:DoTaskInTime(speed > 0 and dist / speed or 0, CheckAlarmSpider)
-end
-
-local function OnAlarmNewState(inst)
-    if not inst.sg:HasStateTag("busy") then
-        inst:RemoveEventCallback("newstate", OnAlarmNewState)
-        StartAlarmTravel(inst)
-    end
-end
-
--- 延後一幀：dropperweb 在 SpawnChild 回傳後才進入 dropper_enter。
-local function BeginAlarmTravel(inst)
-    inst._no_group_aggro_alarm_task = nil
-    if inst.sg ~= nil and inst.sg:HasStateTag("busy") then
-        inst:RemoveEventCallback("newstate", OnAlarmNewState)
-        inst:ListenForEvent("newstate", OnAlarmNewState)
-    else
-        StartAlarmTravel(inst)
-    end
-end
-
-CheckAlarmSpider = function(inst)
-    inst._no_group_aggro_alarm_task = nil
-    if inst.components.combat:HasTarget() then return end
-    inst._no_group_aggro_alarm = nil
-    inst:RemoveEventCallback("droppedtarget", StartAlarmTravel)
-    inst:RemoveEventCallback("newstate", OnAlarmNewState)
-    -- 只還原自己設定的 summoned；吹哨 buff 仍在時由 buff 的 detachfn 負責。
-    if inst._no_group_aggro_summoned then
-        inst._no_group_aggro_summoned = nil
-        if not inst:HasDebuff("spider_summoned_buff") then inst.summoned = false end
-    end
-end
-
-local function MarkAlarmSpider(inst, x, z)
-    if inst._no_group_aggro_alarm == nil then
-        inst:ListenForEvent("droppedtarget", StartAlarmTravel)
-        if not inst.summoned then
-            inst.summoned = true
-            inst._no_group_aggro_summoned = true
-        end
-    end
-    inst._no_group_aggro_alarm = { x = x, z = z }
-    if inst._no_group_aggro_alarm_task ~= nil then inst._no_group_aggro_alarm_task:Cancel() end
-    inst._no_group_aggro_alarm_task = inst:DoTaskInTime(0, BeginAlarmTravel)
 end
 
 local function SpiderPostInit(inst)
@@ -125,17 +65,12 @@ local function SpiderPostInit(inst)
 
         -- 在實際生成後攔截指派，而非移除 SpawnChild 的 target 參數：
         -- 原版無敵檢查、選擇 prefab 及女王產子機率仍看得到原目標。
-        if nest_hooks or spider_queen then
+        if spider_defense == "untargeted" or spider_queen then
             local old_target = combat.SetTarget
             combat.SetTarget = function(self, target, ...)
                 local context = spider_context
                 if target ~= nil and context ~= nil and context.children[inst]
                     and (context.mode == "untargeted" or context.queen ~= nil) then
-                    -- dropperweb 警報直接指派目標而非調查位置；以目標位置模擬同樣的延後回巢。
-                    if context.kind == "alarm" and target.Transform ~= nil then
-                        local x, _, z = target.Transform:GetWorldPosition()
-                        MarkAlarmSpider(inst, x, z)
-                    end
                     return
                 end
                 return old_target(self, target, ...)
@@ -144,35 +79,15 @@ local function SpiderPostInit(inst)
     end
 
     local locations = inst.components.knownlocations
-    if locations ~= nil and nest_hooks then
+    if locations ~= nil and spider_defense == "untargeted" then
         local old_remember = locations.RememberLocation
-        locations.RememberLocation = function(self, name, pos, ...)
+        locations.RememberLocation = function(self, name, ...)
             local context = spider_context
             if name == "investigate" and context ~= nil and context.mode == "untargeted"
                 and context.children[inst] then
-                if pos ~= nil and context.kind == "alarm" then MarkAlarmSpider(inst, pos.x, pos.z) end
                 return
             end
-            return old_remember(self, name, pos, ...)
-        end
-    end
-
-    if spider_alarm == "untargeted" then
-        local old_save, old_load = inst.OnSave, inst.OnLoad
-        inst.OnSave = function(self, data, ...)
-            -- 原版 callback 可以寫入其他欄位，也可回傳實體 references。
-            local function Finish(...)
-                local pos = self._no_group_aggro_alarm
-                if pos ~= nil then data.no_group_aggro_alarm = { x = pos.x, z = pos.z } end
-                return ...
-            end
-            if old_save ~= nil then return Finish(old_save(self, data, ...)) end
-            return Finish()
-        end
-        inst.OnLoad = function(self, data, ...)
-            local pos = data ~= nil and data.no_group_aggro_alarm or nil
-            if type(pos) == "table" then MarkAlarmSpider(self, pos.x, pos.z) end
-            if old_load ~= nil then return old_load(self, data, ...) end
+            return old_remember(self, name, ...)
         end
     end
 
@@ -222,19 +137,6 @@ local function SpiderNestPostInit(inst)
             children = context.children, spawning = true,
         }
         return WithSpiderContext(spawning, old_spawn, self, ...)
-    end
-
-    local old_count = spawner.CountChildrenOutside
-    spawner.CountChildrenOutside = function(self, fn, ...)
-        local context = spider_context
-        if fn ~= nil and context ~= nil and context.nest == inst
-            and context.kind == "alarm" and context.mode == "untargeted" and not context.spawning then
-            local original = fn
-            fn = function(child)
-                return original(child) or child._no_group_aggro_alarm ~= nil
-            end
-        end
-        return old_count(self, fn, ...)
     end
 
     WrapNestCallback(inst, inst.components.combat, "onhitfn", "defense")

@@ -17,7 +17,8 @@ local config = {
     spider = Read("_spider", true),
     spider_nest_help = Read("_spider_nest_help", true),
     spider_nest_defense = Read("_spider_nest_defense", "untargeted"),
-    spider_nest_alarm = Read("_spider_nest_alarm", "untargeted"),
+    -- 警報只分原版與停止；舊存檔的 "untargeted" 按原版處理。
+    spider_nest_alarm = Read("_spider_nest_alarm", "vanilla") == "disabled" and "disabled" or "vanilla",
     spiderqueen = Read("_spiderqueen", true),
     beefalo = Read("_beefalo"),
     pigman = Read("_pigman"),

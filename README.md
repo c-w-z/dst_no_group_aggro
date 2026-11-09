@@ -18,8 +18,8 @@
 [*] 三项均为独立的原版/启用选项，新安装默认启用。蜂巢和蜂箱的无仇恨放蜂不会关闭巢外蜂群的仇恨传播，也不会改变春季等主动索敌行为。建立伺服器页面载入已启用的本MOD时，会将已储存的旧设置自动转成三个布尔值：旧原版为false/false/false，旧选项1为true/true/true，旧选项2为true/false/true；已有独立蜂巢、蜂箱设置优先保留，不必重设。更新后须重新加载并启用MOD；停留在主画面直接覆盖MOD文件，不会让已载入的旧代码重新执行。专用伺服器和旧世界仍可读取旧字符串和缺少新key的设置，在运行时保留旧行为，不改写modoverrides.lua。
 [*] 青蛙、明眼青蛙
 [*] 蜘蛛：包含普通蜘蛛、蜘蛛战士、洞穴蜘蛛、喷吐蜘蛛、穴居悬蛛、破碎蜘蛛、护士蜘蛛和海黽。分别控制蜘蛛互相援助、受击呼叫附近蛛巢、巢穴防卫、蛛网警报以及女王军队，共五项配置。
-[*] 蛛巢防卫：包含各级普通巢、岩穴、月岛巢、海黽巢繭的攻击、采掘、剃巢、作祟及着火反应。可选原版、无目标出蛛（默认）或停止防卫出蛛。无目标模式保留原版数量、种类和生成资格检查，不指定仇恨或调查位置；停止模式不扣巢内库存。
-[*] 蛛网警报：包含各巢踩网、砍蜘蛛网蘑菇树及海黽巢繭的激活警报。可选原版（默认）、无目标出蛛或停止警报出蛛。与防卫配置独立，悬蛛网直接指定目标的路径也包含在内；无目标模式保留原有调查者数量限制及存档标记，避免移除调查位置后反复触发额外放蛛；原版本来没有调查者计数限制的出蛛机制不新增数量限制。
+[*] 蛛巢防卫：包含各级普通巢、岩穴、月岛巢、海黽巢繭的攻击、采掘、剃巢、作祟及着火反应，以及清理海黽巢繭上的月冰雹。可选原版、无目标出蛛（默认）或停止防卫出蛛。无目标模式保留原版数量、种类和生成资格检查，不指定仇恨或调查位置；停止模式不扣巢内库存。
+[*] 蛛网警报：包含各巢踩网、砍蜘蛛网蘑菇树及海黽巢繭的激活警报，悬蛛网直接指定目标的路径也包含在内。可选原版（默认）或停止警报出蛛，与防卫配置独立；旧配置中的无目标出蛛按原版处理。
 [*] 蜘蛛女王：可关闭女王间援助、首领对子蛛的目标指派、新生子蛛继承目标及同女王子蛛互相援助；保留女王目标、产子数量／种类／机率、跟随和单体战斗。
 [*] 蜘蛛互相援助、呼叫蛛巢及女王连动默认关闭。玩家通过韦伯或蜘蛛帽招募的蜘蛛固定保留原版；面具蜘蛛、装饰安抚、哨子、驱散和护士治疗保留。正常繁殖、日常出巢、吹哨、海黽捕鱼及毁巢后的原版无目标逸出也保留，停止防卫出蛛不等于完全不产蛛。
 [*] 皮弗娄牛、小皮弗娄牛
@@ -50,7 +50,7 @@
 
 [h2]蜘蛛功能验证（1.1.0）[/h2]
 [list]
-[*] 已通过 Lua 5.5 语法检查及原版 callback/component 的模拟引擎行为测试，包含防卫／警报九种组合、普通／紧急／延迟出蛛、生成资格、玩家与女王随从、计数／存档和错误恢复；这不证明 Lua 5.1 或 DST 游戏内兼容性。
+[*] 已通过 Lua 5.5 语法检查及原版 callback/component 的模拟引擎行为测试，包含防卫／警报设置组合、普通／紧急／延迟出蛛、生成资格、玩家与女王随从和错误恢复；这不证明 Lua 5.1 或 DST 游戏内兼容性。
 [*] 游戏内测试尚未执行：需在实际游戏 build 验证主机／远程客户端或 dedicated server、地表／洞穴／海洋、八种蜘蛛及所有巢穴、韦伯／蜘蛛帽／女王、配置切换及存档重载。特别对照攻击、采掘、剃巢、点燃、作祟、踩网和砍蜘蛛网蘑菇树，全部原版设置须与未启用 MOD 的蜘蛛行为一致。
 [/list]
 
@@ -76,7 +76,7 @@ This mod removes the group aggro mechanics of creatures such as frogs, beefalos,
 [*] Frogs, Bright-Eyed Frogs
 [*] Spiders: all eight variants (Spider, Warrior, Cave Spider, Spitter, Dangling Depth Dweller, Shattered Spider, Nurse Spider and Sea Strider). Five independent settings control assistance, calls to nearby nests, nest defense, web alarms and queen armies.
 [*] Nest Defense: attacks, mining, shaving, haunting and ignition for regular den stages, Spilagmites, Shattered Spider Holes and Oceanvine Cocoons, including lunar hail buildup clearing on cocoons. Choose Vanilla, Untargeted Releases (default), or No Defensive Releases. Untargeted mode retains numbers, types and spawn eligibility without targets or investigation positions; disabled spawning does not consume nest stock.
-[*] Web Alarms: nest web triggers, chopping Webbed Mushtrees and Oceanvine Cocoon activation alarms. Choose Vanilla, Untargeted Releases (default), or No Alarm Releases, independently of defense. Includes direct targeting from dropper webs. Untargeted mode keeps vanilla investigator limits without investigation positions: an alarm spider counts as an investigator and does not return home for the time it would need to walk to the removed position (or the removed target's position for dropper webs) after its emerging animation, extended while it has a combat target, and this state survives save reloads. Mechanisms without vanilla investigator limits do not gain new caps.
+[*] Web Alarms: nest web triggers, chopping Webbed Mushtrees and Oceanvine Cocoon activation alarms, including direct targeting from dropper webs. Choose Vanilla (default) or No Alarm Releases, independently of defense; legacy Untargeted Releases settings behave as Vanilla.
 [*] Queens: disable queen-to-queen assistance, leader assignments, newborn target inheritance and assistance between a queen's minions. Preserve the queen's own target, birth numbers/types/chances, following and individual combat.
 [*] Spider assistance, nest calls and queen target sharing are disabled by default. Player spiders recruited through Webber or Spider Hats retain vanilla behavior. Parasite hosts, decorations, whistles, repellent and nurse healing are preserved, as are routine spawning, fishing and vanilla untargeted escapes on nest destruction. No Defensive Releases does not disable all spider spawning.
 [*] Beefalos, Baby Beefalos
@@ -107,7 +107,7 @@ This mod removes the group aggro mechanics of creatures such as frogs, beefalos,
 
 [h2]Spider Validation (1.1.0)[/h2]
 [list]
-[*] Lua 5.5 syntax checks and real snapshot callback/component tests under a mocked engine passed, including nine defense/alarm combinations, regular/emergency/delayed spawning, eligibility, player/queen followers, counting/save markers and error restoration. These do not establish Lua 5.1 or in-game DST compatibility.
+[*] Lua 5.5 syntax checks and real snapshot callback/component tests under a mocked engine passed, including defense/alarm setting combinations, regular/emergency/delayed spawning, eligibility, player/queen followers and error restoration. These do not establish Lua 5.1 or in-game DST compatibility.
 [*] In-game tests have not been run. Validate the actual build on a host with remote clients or a dedicated server, surface/caves/ocean, all eight variants and nest families, Webber/Spider Hats/Queens, config changes and save reloads. Compare attacks, mining, shaving, ignition, haunting, web triggers and Webbed Mushtree chopping. All vanilla spider settings must match spider behavior with this mod disabled.
 [/list]
 

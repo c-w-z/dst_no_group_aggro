@@ -51,9 +51,8 @@ local LANGS = {
                 { '无目标出蛛', "untargeted", "保留防卫出蛛数量与种类，不传入仇恨或调查位置；蜘蛛仍可自行索敌" },
                 { '停止防卫出蛛', "disabled", "防卫反应不生成蜘蛛、不扣巢内库存；正常出巢、吹哨与毁巢逸出保留" },
             } },
-            { modid .. '_spider_nest_alarm', '蛛网警报', '包含各类巢穴踩网、砍蜘蛛网蘑菇树，以及海黽巢繭的激活警报；与巢穴防卫独立', "untargeted", {
+            { modid .. '_spider_nest_alarm', '蛛网警报', '包含各类巢穴踩网、砍蜘蛛网蘑菇树，以及海黽巢繭的激活警报；与巢穴防卫独立', "vanilla", {
                 { '原版', "vanilla", "保留警报出蛛及原版目标或调查位置" },
-                { '无目标出蛛', "untargeted", "保留警报出蛛，不传入仇恨或调查位置；保留调查者数量限制，蜘蛛仍可自行索敌" },
                 { '停止警报出蛛', "disabled", "不因警报生成蜘蛛；防卫、日常出巢、吹哨及海黽捕鱼独立运作" },
             } },
             { modid .. '_spiderqueen', '蜘蛛女王', '移除女王间援助、对子蛛的目标指派、新生子蛛继承目标及子蛛互相援助；保留产子、跟随与单体战斗', true, onof_zh },
@@ -93,9 +92,8 @@ local LANGS = {
                 { 'Untargeted Releases', "untargeted", "Same releases, no target or investigate spot; spiders may still aggro" },
                 { 'No Defensive Releases', "disabled", "No spawn, no stock used; routine, whistle and escapes kept" },
             } },
-            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Den webs, Webbed Mushtree chopping, Oceanvine Cocoon alarms; separate from defense', "untargeted", {
+            { modid .. '_spider_nest_alarm', 'Spider Web Alarms', 'Den webs, Webbed Mushtree chopping, Oceanvine Cocoon alarms; separate from defense', "vanilla", {
                 { 'Vanilla', "vanilla", "Vanilla releases with targets or investigate spots" },
-                { 'Untargeted Releases', "untargeted", "Same releases and investigator cap, no target or spot; spiders may still aggro" },
                 { 'No Alarm Releases', "disabled", "No alarm spawns; defense, routine, whistle and fishing unaffected" },
             } },
             { modid .. '_spiderqueen', 'Spider Queens', 'No queen assistance, minion target orders, newborn targets or minion assistance; births, following and solo combat kept', true, onof_en },
