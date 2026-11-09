@@ -7,17 +7,20 @@ local spider_defense = config.spider_nest_defense
 local spider_alarm = config.spider_nest_alarm
 local spider_queen = config.spiderqueen
 local spider_context = nil
+-- 只有巢穴或女王 Hook 會建立生成上下文。
+local nest_hooks = spider_defense ~= "vanilla" or spider_alarm ~= "vanilla"
 
--- Lua 5.1 相容：保留 nil 與多重回傳，拋錯前也恢復可巢狀的上下文。
+-- Lua 5.1 相容：保留 nil 與多重回傳，拋錯前也恢復可巢狀的上下文並保留原始 traceback。
 local function WithSpiderContext(context, fn, ...)
     local previous = spider_context
     spider_context = context
+    local args, n = { ... }, select("#", ...)
     local function Finish(ok, ...)
         spider_context = previous
         if not ok then error((...), 0) end
         return ...
     end
-    return Finish(pcall(fn, ...))
+    return Finish(xpcall(function() return fn(unpack(args, 1, n)) end, debug.traceback))
 end
 
 local function SpiderLeader(inst)
@@ -40,13 +43,20 @@ local function SpiderPostInit(inst)
 
     local combat = inst.components.combat
     if combat ~= nil then
-        local old_share = combat.ShareTarget
-        combat.ShareTarget = function(self, ...)
-            local leader = SpiderLeader(inst)
-            local disabled = leader ~= nil and leader.prefab == "spiderqueen" and spider_queen
-                or (leader == nil and spider_share)
-            if ProtectedSpider(inst) or not disabled then
-                return old_share(self, ...)
+        if spider_share or spider_queen then
+            local old_share = combat.ShareTarget
+            combat.ShareTarget = function(self, ...)
+                if inst:HasTag("shadowthrall_parasite_hosted") then return old_share(self, ...) end
+                local leader = SpiderLeader(inst)
+                local disabled = false
+                if leader == nil then
+                    disabled = spider_share
+                elseif leader.prefab == "spiderqueen" then
+                    disabled = spider_queen
+                end
+                if not disabled then
+                    return old_share(self, ...)
+                end
             end
         end
 
@@ -59,27 +69,26 @@ local function SpiderPostInit(inst)
 
         -- 在實際生成後攔截指派，而非移除 SpawnChild 的 target 參數：
         -- 原版無敵檢查、選擇 prefab 及女王產子機率仍看得到原目標。
-        local old_target = combat.SetTarget
-        combat.SetTarget = function(self, target, ...)
-            local context = spider_context
-            if target ~= nil and context ~= nil and context.children[inst]
-                and not ProtectedSpider(inst) then
-                if context.mode == "untargeted"
-                    or (context.queen ~= nil and SpiderLeader(inst) == context.queen) then
+        if nest_hooks or spider_queen then
+            local old_target = combat.SetTarget
+            combat.SetTarget = function(self, target, ...)
+                local context = spider_context
+                if target ~= nil and context ~= nil and context.children[inst]
+                    and (context.mode == "untargeted" or context.queen ~= nil) then
                     return
                 end
+                return old_target(self, target, ...)
             end
-            return old_target(self, target, ...)
         end
     end
 
     local locations = inst.components.knownlocations
-    if locations ~= nil then
+    if locations ~= nil and nest_hooks then
         local old_remember = locations.RememberLocation
         locations.RememberLocation = function(self, name, ...)
             local context = spider_context
             if name == "investigate" and context ~= nil and context.mode == "untargeted"
-                and context.children[inst] and not ProtectedSpider(inst) then
+                and context.children[inst] then
                 return
             end
             return old_remember(self, name, ...)
@@ -104,9 +113,7 @@ local function SpiderPostInit(inst)
             self._no_group_aggro_alarm = data ~= nil and data.no_group_aggro_alarm == true or nil
             if old_load ~= nil then return old_load(self, data, ...) end
         end
-        inst:ListenForEvent("goinghome", ClearAlarmSpider)
         inst:ListenForEvent("detachchild", ClearAlarmSpider)
-        inst:ListenForEvent("death", ClearAlarmSpider)
         inst:ListenForEvent("ontrapped", ClearAlarmSpider)
         local follower = inst.components.follower
         if follower ~= nil then
@@ -189,13 +196,15 @@ local function SpiderNestPostInit(inst)
     WrapNestCallback(inst, inst.components.shaveable, "on_shaved", "defense")
     WrapNestCallback(inst, inst.components.hauntable, "onhaunt", "defense")
     WrapNestCallback(inst, inst.components.burnable, "onignite", "defense")
-    WrapNestCallback(inst, inst, "SummonChildren", "routine")
 
     for _, name in ipairs({ "PushEvent", "PushEventImmediate" }) do
         local original = inst[name]
         inst[name] = function(self, event, ...)
             if event == "creepactivate" or (event == "activated" and self.prefab == "oceanvine_cocoon") then
                 return WithSpiderContext(NestContext(self, "alarm"), original, self, event, ...)
+            elseif event == "lunarhailbuildupworked" then
+                -- 海黽巢繭清理月冰雹時直接呼叫局部 OnHit，不經 combat.onhitfn。
+                return WithSpiderContext(NestContext(self, "defense"), original, self, event, ...)
             elseif event == "death" then
                 -- 致死攻擊、剃巢中發生的原版無目標逸出不算防衛生成。
                 return WithSpiderContext(NestContext(self, "escape"), original, self, event, ...)
@@ -230,14 +239,13 @@ local function SpiderQueenPostInit(inst)
     end
 end
 
-if spider_share or spider_nest_help or spider_queen
-    or spider_defense ~= "vanilla" or spider_alarm ~= "vanilla" then
+if spider_share or spider_nest_help or spider_queen or nest_hooks then
     for _, prefab in ipairs({ "spider", "spider_warrior", "spider_hider", "spider_spitter",
         "spider_dropper", "spider_moon", "spider_healer", "spider_water" }) do
         AddPrefabPostInit(prefab, SpiderPostInit)
     end
 end
-if spider_defense ~= "vanilla" or spider_alarm ~= "vanilla" then
+if nest_hooks then
     for _, prefab in ipairs({ "spiderden", "spiderden_2", "spiderden_3", "spiderhole",
         "moonspiderden", "dropperweb", "oceanvine_cocoon" }) do
         AddPrefabPostInit(prefab, SpiderNestPostInit)
